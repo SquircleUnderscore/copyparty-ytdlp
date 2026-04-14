@@ -8,7 +8,17 @@
 	<form id="op_yt_form" style="display: flex; flex-direction: column;">
 		<label>
 			Video URL:
-			<input type="text" placeholder="any youtube URL" name="url">
+			<input type="text" placeholder="any youtube URL" name="url" style="width: 50%;">
+			<span id="yt_qual_wrap" style="margin-left: 5px;">
+				<select name="quality" style="width: max-content;">
+					<option value="">Best Quality</option>
+					<option value="2160">4K (2160p)</option>
+					<option value="1440">1440p</option>
+					<option value="1080">1080p</option>
+					<option value="720">720p</option>
+					<option value="480">480p</option>
+				</select>
+			</span>
 		</label>
 		<label>
 			Output format:
@@ -17,7 +27,7 @@
 			<label><input type="radio" name="fmt" value="webm">webm</label>
 			<label><input type="radio" name="fmt" value="mp3">audio (mp3)</label>
 			<label><input type="radio" name="fmt" value="opus">audio (opus)</label>
-			<label><input type="radio" name="fmt" value="opus">audio (flac)</label>
+			<label><input type="radio" name="fmt" value="flac">audio (flac)</label>
 		</label>
 		<input type="submit" value="Download" style="width: max-content">
 	</form>
@@ -28,6 +38,15 @@
 	
 	const button = QS("#opa_yt")
 	const page = QS("#op_yt")
+	const qualWrap = QS("#yt_qual_wrap")
+
+	// Hide quality menu for audio
+	QSA('input[name="fmt"]').forEach(radio => {
+		radio.addEventListener('change', (e) => {
+			const isAudio = ["mp3", "opus", "flac"].includes(e.target.value)
+			qualWrap.style.display = isAudio ? "none" : "inline-block"
+		})
+	})
 
 	// Add event handlers
 	button.addEventListener("click", (e) => {
@@ -45,12 +64,19 @@
 		let url = data.get("url")
 		if (!url)
 			return
-		let fmt = data.get("fmt")
+		
+		let payload = {
+			url: url,
+			fmt: data.get("fmt"),
+			quality: data.get("quality")
+		}
 
 		let req = new XMLHttpRequest()
 		req.open("POST", get_evpath())
 		req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-		req.send("msg=::ytdlp.exec?" + (fmt ? `fmt=${fmt}&url=` : "url=") + url_enc(url))
+		
+		// Keep plugin namespace and encode JSON to support complex URLs safely
+		req.send("msg=" + encodeURIComponent("::ytdlp.exec?" + JSON.stringify(payload)))
 	})
 
 	if (sread("opmode") == "yt") {
