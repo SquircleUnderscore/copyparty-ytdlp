@@ -49,7 +49,7 @@
 	})
 
 	// Add event handlers
-	button.addEventListener("click", (e) => {
+	button.addEventListener("click", () => {
 		let en = !button.classList.contains("act")
 		QSA(".opview, #ops > a").forEach((e) => e.classList.remove("act"))
 

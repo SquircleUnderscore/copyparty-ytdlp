@@ -83,7 +83,7 @@ def main(args):
 	if not shutil.which("yt-dlp"):
 		plugin_dir_check = os.path.dirname(os.path.abspath(__file__))
 		if not os.path.exists(os.path.join(plugin_dir_check, "yt-dlp")) and not os.path.exists(os.path.join(plugin_dir_check, "yt-dlp.exe")):
-			return "no_ytdlp"
+			return {"stdout": "no_ytdlp"}
 		
 	base_dir = args["ap"].rstrip("/") + "/"
 	
